@@ -22,44 +22,67 @@ public class GameRules
 
         // Give player initial cards
         Console.WriteLine();
-        Game.s_player.Hit(Game.s_deck);
-        Game.s_player.Hit(Game.s_deck);
+        Console.WriteLine("enter number of players (1-4):");
+        int numPlayers;
+        while (!int.TryParse(Console.ReadLine(), out numPlayers) || numPlayers < 1 || numPlayers > 4)
+        {
+            Console.WriteLine("Invalid input. Please enter a number between 1 and 4.");
+        }
+
+        // Clear the players list and add the specified number of players
+        Game.s_players.Clear();
+        for (int i = 0; i < numPlayers; i++)
+        {
+            Game.s_players.Add(new Player($"Player {i + 1}"));
+        }
+
+        foreach (var player in Game. s_players)
+        {
+            player.Hit(Game.s_deck);
+            player.Hit(Game.s_deck);
+        }
 
         // Change the value of an ace if the player would otherwise bust (11 + 11 > 21)
-        Bust(Game.s_player);
+        Bust(Game.s_players[0]);
 
         // Print player's hand
-        Game.s_player.PrintHand();
+        Game.s_players[0].PrintHand();
 
         // Check if player got Blackjack (11 + 10 == 21)
-        Blackjack(Game.s_player);
+        Blackjack(Game.s_players[0]); // Assuming we're checking the first player
     }
 
     public void PlayerTurn()
     {
-        while (Game.s_gameActive && !Game.s_player.HasStood)
+        foreach (var player in Game.s_players)
         {
             Console.WriteLine();
-            Console.WriteLine($"Would {Game.s_player.Name} like to hit or stand? (h/s)");
-            string input = Console.ReadLine() ?? "";
-            if (input.ToLower() == "h")
+            Console.WriteLine($"It's {player.Name}'s turn.");
+            while (Game.s_gameActive && !player.HasStood)
             {
-                Game.s_player.Hit(Game.s_deck);
-                if (!Bust(Game.s_player))
+                Console.WriteLine();
+                Console.WriteLine($"Would {player.Name} like to hit or stand? (h/s)");
+                string input = Console.ReadLine() ?? "";
+                if (input.ToLower() == "h")
                 {
-                    Game.s_player.PrintHand();
+                    player.Hit(Game.s_deck);
+                    if (!Bust(player))
+                    {
+                        player.PrintHand();
+                    }
                 }
-            }
-            else if (input.ToLower() == "s")
-            {
-                Game.s_player.Stand();
-            }
-            else
-            {
-                Console.WriteLine("Invalid input. Please enter 'h' to hit or 's' to stand.");
+                else if (input.ToLower() == "s")
+                {
+                    player.Stand();
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter 'h' to hit or 's' to stand.");
+                }
             }
         }
     }
+    
 
     public void DealerTurn()
     {
@@ -98,7 +121,7 @@ public class GameRules
     {
         //  Simple variable names to improve readability
         var dealer = Game.s_dealer;
-        var player = Game.s_player;
+        var player = Game.s_players[0]; // Assuming we're checking the first player
 
         // Dealer win
         if (dealer.CountHandValue() > player.CountHandValue())
@@ -195,7 +218,7 @@ public class GameRules
     public void ResetHands()
     {
         Game.s_dealer.ClearHand();
-        Game.s_player.ClearHand();
+        Game.s_players[0].ClearHand(); // Assuming we're resetting the first player's hand
     }
 
     public void ResetCardDeck()

@@ -6,14 +6,14 @@ public class Game
     public static bool s_gameActive { get; set; }
     public static CardDeck s_deck { get; set; }
     public static Dealer s_dealer { get; set; }
-    public static Player s_player { get; set; }
-    
+    public static List<Player> s_players = new List<Player>();
+
     public Game()
     {
         s_gameActive = true;
         s_deck = new CardDeck();
         s_dealer = new Dealer();
-        s_player = new Player("Player");
+        s_players.Add(new Player("Player"));
         GameRules.WelcomeMessage();
         LoopGame();
     }
