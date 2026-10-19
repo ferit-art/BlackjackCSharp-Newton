@@ -6,15 +6,19 @@ public class Game
     public static bool s_gameActive { get; set; }
     public static CardDeck s_deck { get; set; }
     public static Dealer s_dealer { get; set; }
-    public static Player s_player { get; set; }
+    public static List<Player> s_players { get; set; }
     
     public Game()
     {
         s_gameActive = true;
         s_deck = new CardDeck();
         s_dealer = new Dealer();
-        s_player = new Player("Player");
+        s_players = new List<Player>();
+        
         GameRules.WelcomeMessage();
+        GameRules.SetAmountOfPlayers();
+        
+        Thread.Sleep(1500);
         LoopGame();
     }
 
@@ -25,22 +29,28 @@ public class Game
             GameRules.StartGame();
             if (s_gameActive)
             {
-                Thread.Sleep(1000);
-                GameRules.PlayerTurn();
-
+                foreach (var p in s_players)    //  All player turns.
+                {
+                    Thread.Sleep(1000);
+                    GameRules.PlayerTurn(p);   
+                }
+        
                 if (s_gameActive)
                 {
                     Thread.Sleep(1000);
                     GameRules.DealerTurn();
-
+        
                     if (s_gameActive)
                     {
-                        Thread.Sleep(1000);
-                        GameRules.WinCheck();
+                        foreach (var p in s_players)    //  Every player is checked against the dealer.
+                        {
+                            Thread.Sleep(1000);
+                            GameRules.WinCheck(p);   
+                        }
                     }
                 }
             }
-
+        
             Thread.Sleep(1000);
             
             if (GameRules.AskToPlayAgain())
